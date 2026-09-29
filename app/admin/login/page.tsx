@@ -4,6 +4,14 @@ import { FormEvent, useState } from "react";
 import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabase";
 
+// Fondo marfil con luz blanca difusa detrás de la tarjeta y sombras
+// cálidas casi imperceptibles en las esquinas. Solo CSS, sin imágenes.
+const FONDO_LOGIN = [
+  "radial-gradient(ellipse 55% 50% at 50% 45%, rgba(255, 255, 255, 0.85) 0%, rgba(255, 255, 255, 0) 70%)",
+  "radial-gradient(ellipse 60% 55% at 0% 0%, rgba(222, 216, 202, 0.35) 0%, rgba(222, 216, 202, 0) 70%)",
+  "radial-gradient(ellipse 60% 55% at 100% 100%, rgba(210, 206, 196, 0.35) 0%, rgba(210, 206, 196, 0) 70%)",
+].join(", ");
+
 export default function AdminLoginPage() {
   const router = useRouter();
 
@@ -53,7 +61,10 @@ export default function AdminLoginPage() {
   }
 
   return (
-    <main className="flex min-h-dvh w-full items-center justify-center overflow-x-clip bg-[#f5f5f2] px-4 py-12 font-sans text-[#263238] [color-scheme:light]">
+    <main
+      style={{ backgroundImage: FONDO_LOGIN }}
+      className="flex min-h-dvh w-full items-center justify-center overflow-x-clip bg-[#f5f5f2] bg-fixed px-4 py-12 font-sans text-[#263238] [color-scheme:light]"
+    >
       <div className="w-full max-w-[420px] rounded-[24px] border border-[#173f4a]/[0.07] bg-white px-6 py-10 shadow-[0_1px_2px_rgba(23,63,74,0.04),0_12px_40px_-12px_rgba(23,63,74,0.12)] motion-safe:animate-rise sm:px-10 sm:py-12">
         <header className="text-center">
           <p className="font-display leading-none text-[#173f4a]">
