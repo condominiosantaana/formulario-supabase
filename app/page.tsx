@@ -1,6 +1,6 @@
 "use client";
 
-import { FormEvent, useState } from "react";
+import { ComponentProps, FormEvent, ReactNode, useState } from "react";
 import { supabase } from "@/lib/supabase";
 
 const CAMBIO_VIVIENDA = [
@@ -30,6 +30,12 @@ const RANGO_EDAD = [
   "36 a 65",
   "66 o mas",
 ];
+
+// Texto visible de algunas opciones. El valor guardado no cambia para
+// mantener la compatibilidad con los registros existentes y el panel.
+const ETIQUETAS_EDAD: Record<string, string> = {
+  "66 o mas": "66 o más",
+};
 
 export default function Home() {
   const [nombre, setNombre] = useState("");
@@ -153,19 +159,42 @@ export default function Home() {
   }
 
   return (
-    <main className="min-h-screen bg-[#f5f5f2] px-4 py-8 sm:px-6 lg:px-8">
-      <div className="mx-auto max-w-3xl">
-        <div className="overflow-hidden rounded-3xl bg-white shadow-xl">
-          <div className="bg-[#005f73] px-6 py-10 text-center text-white sm:px-10">
-            <p className="mb-3 text-sm font-semibold uppercase tracking-[0.2em] text-white/80">
-              Queremos conocerte
-            </p>
+    <main className="public-form relative isolate min-h-screen w-full overflow-x-clip bg-[#274150] font-sans text-[#1f3340] [color-scheme:light]">
+      <FondoDecorativo />
 
-            <h1 className="text-3xl font-bold leading-tight sm:text-4xl">
+      <div className="mx-auto grid w-full max-w-6xl gap-10 px-4 py-10 sm:px-6 sm:py-14 lg:grid-cols-[minmax(0,5fr)_minmax(0,7fr)] lg:gap-16 lg:px-8 lg:py-20">
+        {/* ---------------- Zona editorial ---------------- */}
+        <header className="animate-rise text-white lg:sticky lg:top-20 lg:self-start">
+          <p className="flex items-center gap-3 text-xs font-semibold uppercase tracking-[0.28em] text-white/70">
+            <span aria-hidden="true" className="h-px w-8 bg-[#e67e22]" />
+            Queremos conocerte
+          </p>
+
+          <h1 className="mt-8 font-display leading-none">
+            <span className="block text-[4.5rem] font-light tracking-tight sm:text-8xl lg:text-[8.5rem]">
+              Km 2
+            </span>
+            <span className="mt-3 block text-3xl font-light italic text-white/85 sm:text-4xl lg:text-5xl">
+              Vía Sirivana
+            </span>
+          </h1>
+
+          <p className="mt-8 max-w-md text-base leading-7 text-white/75 sm:text-lg sm:leading-8">
+            Un lugar para toda la vida empieza por saber qué buscas.
+            Cuéntanos un poco sobre ti y sobre lo que imaginas para tu
+            familia.
+          </p>
+
+          <Paisaje className="mt-12 hidden w-full max-w-sm text-white lg:block" />
+        </header>
+
+        {/* ---------------- Tarjeta del formulario ---------------- */}
+        <div className="animate-rise min-w-0 rounded-[28px] bg-white shadow-2xl shadow-black/25 [animation-delay:120ms]">
+          <div className="px-5 pb-2 pt-8 sm:px-10 sm:pt-12">
+            <h2 className="font-display text-3xl font-light leading-tight text-[#274150] sm:text-4xl">
               Cuéntanos un poco sobre ti
-            </h1>
-
-            <p className="mx-auto mt-4 max-w-2xl text-base leading-7 text-white/90 sm:text-lg">
+            </h2>
+            <p className="mt-3 max-w-lg text-[15px] leading-7 text-[#274150]/65">
               Tus respuestas nos ayudarán a conocer mejor lo que buscas para
               ti y tu familia.
             </p>
@@ -173,318 +202,502 @@ export default function Home() {
 
           <form
             onSubmit={handleSubmit}
-            className="space-y-8 px-6 py-8 sm:px-10 sm:py-10"
+            className="space-y-12 px-5 pb-8 pt-8 sm:space-y-14 sm:px-10 sm:pb-12"
           >
-            <section>
-              <h2 className="mb-6 border-b-2 border-[#005f73] pb-2 text-xl font-bold text-[#005f73]">
-                Tus datos
-              </h2>
+            <Seccion numero="01" titulo="Datos de contacto">
+              <CampoTexto
+                id="nombre"
+                etiqueta="Nombre y apellidos"
+                obligatorio
+                type="text"
+                value={nombre}
+                onChange={(event) => setNombre(event.target.value)}
+                placeholder="Escribe tu nombre completo"
+                autoComplete="name"
+              />
 
-              <div className="space-y-5">
-                <div>
-                  <label
-                    htmlFor="nombre"
-                    className="mb-2 block text-sm font-semibold text-gray-700"
-                  >
-                    Nombre y apellidos *
-                  </label>
+              <CampoTexto
+                id="telefono"
+                etiqueta="Teléfono / WhatsApp"
+                obligatorio
+                type="tel"
+                inputMode="tel"
+                value={telefono}
+                onChange={(event) => setTelefono(event.target.value)}
+                placeholder="Escribe tu número de teléfono"
+                autoComplete="tel"
+              />
 
-                  <input
-                    id="nombre"
-                    type="text"
-                    value={nombre}
-                    onChange={(event) => setNombre(event.target.value)}
-                    placeholder="Escribe tu nombre completo"
-                    autoComplete="name"
-                    className="w-full rounded-xl border border-gray-300 px-4 py-3 text-gray-800 outline-none transition focus:border-[#005f73] focus:ring-2 focus:ring-[#005f73]/20"
-                  />
-                </div>
+              <CampoTexto
+                id="correo"
+                etiqueta="Correo electrónico"
+                type="email"
+                inputMode="email"
+                value={correo}
+                onChange={(event) => setCorreo(event.target.value)}
+                placeholder="ejemplo@correo.com"
+                autoComplete="email"
+              />
+            </Seccion>
 
-                <div>
-                  <label
-                    htmlFor="telefono"
-                    className="mb-2 block text-sm font-semibold text-gray-700"
-                  >
-                    Teléfono / WhatsApp *
-                  </label>
+            <Seccion numero="02" titulo="Dónde vives">
+              <div className="grid gap-5 sm:grid-cols-2">
+                <CampoTexto
+                  id="ciudad"
+                  etiqueta="Ciudad donde vive"
+                  obligatorio
+                  type="text"
+                  value={ciudad}
+                  onChange={(event) => setCiudad(event.target.value)}
+                  placeholder="Escribe la ciudad donde vives"
+                  autoComplete="address-level2"
+                />
 
-                  <input
-                    id="telefono"
-                    type="tel"
-                    value={telefono}
-                    onChange={(event) => setTelefono(event.target.value)}
-                    placeholder="Escribe tu número de teléfono"
-                    autoComplete="tel"
-                    className="w-full rounded-xl border border-gray-300 px-4 py-3 text-gray-800 outline-none transition focus:border-[#005f73] focus:ring-2 focus:ring-[#005f73]/20"
-                  />
-                </div>
-
-                <div>
-                  <label
-                    htmlFor="correo"
-                    className="mb-2 block text-sm font-semibold text-gray-700"
-                  >
-                    Correo electrónico
-                  </label>
-
-                  <input
-                    id="correo"
-                    type="email"
-                    value={correo}
-                    onChange={(event) => setCorreo(event.target.value)}
-                    placeholder="ejemplo@correo.com"
-                    autoComplete="email"
-                    className="w-full rounded-xl border border-gray-300 px-4 py-3 text-gray-800 outline-none transition focus:border-[#005f73] focus:ring-2 focus:ring-[#005f73]/20"
-                  />
-                </div>
-
-                <div>
-                  <label
-                    htmlFor="ciudad"
-                    className="mb-2 block text-sm font-semibold text-gray-700"
-                  >
-                    Ciudad donde vive *
-                  </label>
-
-                  <input
-                    id="ciudad"
-                    type="text"
-                    value={ciudad}
-                    onChange={(event) => setCiudad(event.target.value)}
-                    placeholder="Escribe la ciudad donde vives"
-                    autoComplete="address-level2"
-                    className="w-full rounded-xl border border-gray-300 px-4 py-3 text-gray-800 outline-none transition focus:border-[#005f73] focus:ring-2 focus:ring-[#005f73]/20"
-                  />
-                </div>
-
-                <div>
-                  <label
-                    htmlFor="barrio"
-                    className="mb-2 block text-sm font-semibold text-gray-700"
-                  >
-                    Barrio *
-                  </label>
-
-                  <input
-                    id="barrio"
-                    type="text"
-                    value={barrio}
-                    onChange={(event) => setBarrio(event.target.value)}
-                    placeholder="Escribe el barrio donde vives"
-                    autoComplete="address-level3"
-                    className="w-full rounded-xl border border-gray-300 px-4 py-3 text-gray-800 outline-none transition focus:border-[#005f73] focus:ring-2 focus:ring-[#005f73]/20"
-                  />
-                </div>
+                <CampoTexto
+                  id="barrio"
+                  etiqueta="Barrio"
+                  obligatorio
+                  type="text"
+                  value={barrio}
+                  onChange={(event) => setBarrio(event.target.value)}
+                  placeholder="Escribe el barrio donde vives"
+                  autoComplete="address-level3"
+                />
               </div>
-            </section>
+            </Seccion>
 
-            <section>
-              <h2 className="mb-6 border-b-2 border-[#005f73] pb-2 text-xl font-bold text-[#005f73]">
-                Sobre ti
-              </h2>
+            <Seccion numero="03" titulo="Sobre ti">
+              <GrupoOpciones
+                nombre="rangoEdad"
+                pregunta="Rango de Edad"
+                opciones={RANGO_EDAD}
+                etiquetas={ETIQUETAS_EDAD}
+                valor={rangoEdad}
+                onCambio={setRangoEdad}
+                columnas="grid-cols-2 sm:grid-cols-4"
+              />
+            </Seccion>
 
-              <div>
-                <p className="mb-4 text-sm font-semibold leading-6 text-gray-800">
-                  Rango de Edad *
-                </p>
+            <Seccion numero="04" titulo="Tu momento">
+              <GrupoOpciones
+                nombre="cambioVivienda"
+                pregunta="Si pudiera cambiar algo de donde vive hoy, ¿qué sería?"
+                opciones={CAMBIO_VIVIENDA}
+                valor={cambioVivienda}
+                onCambio={setCambioVivienda}
+              />
 
-                <div className="space-y-3">
-                  {RANGO_EDAD.map((opcion) => (
-                    <label
-                      key={opcion}
-                      className={`flex cursor-pointer items-start gap-3 rounded-xl border p-4 transition ${
-                        rangoEdad === opcion
-                          ? "border-[#005f73] bg-[#005f73]/5"
-                          : "border-gray-200 hover:border-[#005f73]/50 hover:bg-gray-50"
-                      }`}
-                    >
-                      <input
-                        type="radio"
-                        name="rangoEdad"
-                        value={opcion}
-                        checked={rangoEdad === opcion}
-                        onChange={(event) =>
-                          setRangoEdad(event.target.value)
-                        }
-                        className="mt-1 h-4 w-4 accent-[#005f73]"
-                      />
+              <GrupoOpciones
+                nombre="momentoPaso"
+                pregunta="¿Cuándo le gustaría dar ese paso?"
+                opciones={MOMENTO_PASO}
+                valor={momentoPaso}
+                onCambio={setMomentoPaso}
+              />
 
-                      <span className="text-sm leading-6 text-gray-700">
-                        {opcion}
-                      </span>
-                    </label>
-                  ))}
-                </div>
-              </div>
-            </section>
+              <GrupoOpciones
+                nombre="conQuienVive"
+                pregunta="¿Con quién vive hoy?"
+                opciones={CON_QUIEN_VIVE}
+                valor={conQuienVive}
+                onCambio={setConQuienVive}
+              />
+            </Seccion>
 
-            <section>
-              <h2 className="mb-6 border-b-2 border-[#005f73] pb-2 text-xl font-bold text-[#005f73]">
-                Sobre lo que buscas
-              </h2>
-
-              <div className="space-y-8">
-                <div>
-                  <p className="mb-4 text-sm font-semibold leading-6 text-gray-800">
-                    Si pudiera cambiar algo de donde vive hoy, ¿qué sería? *
-                  </p>
-
-                  <div className="space-y-3">
-                    {CAMBIO_VIVIENDA.map((opcion) => (
-                      <label
-                        key={opcion}
-                        className={`flex cursor-pointer items-start gap-3 rounded-xl border p-4 transition ${
-                          cambioVivienda === opcion
-                            ? "border-[#005f73] bg-[#005f73]/5"
-                            : "border-gray-200 hover:border-[#005f73]/50 hover:bg-gray-50"
-                        }`}
-                      >
-                        <input
-                          type="radio"
-                          name="cambioVivienda"
-                          value={opcion}
-                          checked={cambioVivienda === opcion}
-                          onChange={(event) =>
-                            setCambioVivienda(event.target.value)
-                          }
-                          className="mt-1 h-4 w-4 accent-[#005f73]"
-                        />
-
-                        <span className="text-sm leading-6 text-gray-700">
-                          {opcion}
-                        </span>
-                      </label>
-                    ))}
-                  </div>
-                </div>
-
-                <div>
-                  <p className="mb-4 text-sm font-semibold leading-6 text-gray-800">
-                    ¿Cuándo le gustaría dar ese paso? *
-                  </p>
-
-                  <div className="space-y-3">
-                    {MOMENTO_PASO.map((opcion) => (
-                      <label
-                        key={opcion}
-                        className={`flex cursor-pointer items-start gap-3 rounded-xl border p-4 transition ${
-                          momentoPaso === opcion
-                            ? "border-[#005f73] bg-[#005f73]/5"
-                            : "border-gray-200 hover:border-[#005f73]/50 hover:bg-gray-50"
-                        }`}
-                      >
-                        <input
-                          type="radio"
-                          name="momentoPaso"
-                          value={opcion}
-                          checked={momentoPaso === opcion}
-                          onChange={(event) =>
-                            setMomentoPaso(event.target.value)
-                          }
-                          className="mt-1 h-4 w-4 accent-[#005f73]"
-                        />
-
-                        <span className="text-sm leading-6 text-gray-700">
-                          {opcion}
-                        </span>
-                      </label>
-                    ))}
-                  </div>
-                </div>
-
-                <div>
-                  <p className="mb-4 text-sm font-semibold leading-6 text-gray-800">
-                    ¿Con quién vive hoy? *
-                  </p>
-
-                  <div className="space-y-3">
-                    {CON_QUIEN_VIVE.map((opcion) => (
-                      <label
-                        key={opcion}
-                        className={`flex cursor-pointer items-start gap-3 rounded-xl border p-4 transition ${
-                          conQuienVive === opcion
-                            ? "border-[#005f73] bg-[#005f73]/5"
-                            : "border-gray-200 hover:border-[#005f73]/50 hover:bg-gray-50"
-                        }`}
-                      >
-                        <input
-                          type="radio"
-                          name="conQuienVive"
-                          value={opcion}
-                          checked={conQuienVive === opcion}
-                          onChange={(event) =>
-                            setConQuienVive(event.target.value)
-                          }
-                          className="mt-1 h-4 w-4 accent-[#005f73]"
-                        />
-
-                        <span className="text-sm leading-6 text-gray-700">
-                          {opcion}
-                        </span>
-                      </label>
-                    ))}
-                  </div>
-                </div>
-              </div>
-            </section>
-
-            <section className="rounded-2xl bg-gray-50 p-5">
-              <label className="flex cursor-pointer items-start gap-3">
+            <Seccion numero="05" titulo="Autorización">
+              <label
+                className={`group flex cursor-pointer items-start gap-4 rounded-2xl border p-4 transition-colors duration-200 has-[input:focus-visible]:ring-4 has-[input:focus-visible]:ring-[#005f73]/20 sm:p-5 ${
+                  autorizacion
+                    ? "border-[#005f73] bg-[#005f73]/[0.05]"
+                    : "border-[#274150]/10 bg-[#F7F6F1] hover:border-[#274150]/25"
+                }`}
+              >
                 <input
                   type="checkbox"
                   checked={autorizacion}
                   onChange={(event) => setAutorizacion(event.target.checked)}
-                  className="mt-1 h-5 w-5 shrink-0 accent-[#005f73]"
+                  aria-required="true"
+                  className="sr-only"
                 />
 
-                <span className="text-sm leading-6 text-gray-700">
+                <span
+                  aria-hidden="true"
+                  className={`mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-lg border-2 transition-colors duration-200 ${
+                    autorizacion
+                      ? "border-[#005f73] bg-[#005f73] text-white"
+                      : "border-[#274150]/30 bg-white text-transparent"
+                  }`}
+                >
+                  <IconoCheck className="h-3.5 w-3.5" />
+                </span>
+
+                <span className="text-sm leading-6 text-[#274150]/80">
                   Autorizo el tratamiento de mis datos personales para los
                   fines relacionados con este formulario y acepto que la
                   información suministrada sea utilizada para contactarme
-                  cuando corresponda. *
+                  cuando corresponda.{" "}
+                  <span aria-hidden="true" className="text-[#e67e22]">
+                    *
+                  </span>
                 </span>
               </label>
-            </section>
+            </Seccion>
 
-            {error && (
-              <div
-                role="alert"
-                className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm leading-6 text-red-700"
+            <div className="space-y-5">
+              {error && (
+                <div
+                  role="alert"
+                  className="animate-rise flex items-start gap-3 rounded-2xl bg-[#fdf1ef] px-4 py-3.5 text-sm leading-6 text-[#9b2c1f] ring-1 ring-inset ring-[#9b2c1f]/15"
+                >
+                  <IconoAlerta className="mt-0.5 h-5 w-5 shrink-0" />
+                  <span>{error}</span>
+                </div>
+              )}
+
+              {mensaje && (
+                <div
+                  role="status"
+                  className="animate-rise flex items-center gap-4 rounded-2xl bg-[#005f73]/[0.06] px-4 py-4 ring-1 ring-inset ring-[#005f73]/20 sm:px-5"
+                >
+                  <span className="animate-pop flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-[#005f73] text-white">
+                    <svg
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2.5"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      aria-hidden="true"
+                      className="h-5 w-5"
+                    >
+                      <path
+                        d="M5 12.5l4.5 4.5L19 7.5"
+                        className="animate-draw [stroke-dasharray:24] [stroke-dashoffset:24]"
+                      />
+                    </svg>
+                  </span>
+                  <p className="text-[15px] font-semibold leading-6 text-[#00485a]">
+                    {mensaje}
+                  </p>
+                </div>
+              )}
+
+              <button
+                type="submit"
+                disabled={enviando}
+                aria-busy={enviando}
+                className="group relative flex h-16 w-full items-center justify-center gap-3 overflow-hidden rounded-2xl bg-[#e67e22] px-6 text-base font-semibold tracking-wide text-white shadow-lg shadow-[#e67e22]/25 transition duration-200 hover:bg-[#d96f13] hover:shadow-xl hover:shadow-[#e67e22]/30 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[#e67e22]/35 active:scale-[0.99] disabled:cursor-not-allowed disabled:opacity-70 disabled:hover:bg-[#e67e22]"
               >
-                {error}
-              </div>
-            )}
+                {enviando ? (
+                  <>
+                    <span
+                      aria-hidden="true"
+                      className="h-5 w-5 animate-spin rounded-full border-2 border-white/40 border-t-white"
+                    />
+                    Enviando...
+                  </>
+                ) : (
+                  <>
+                    Enviar información
+                    <svg
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      aria-hidden="true"
+                      className="h-5 w-5 transition-transform duration-200 group-hover:translate-x-1"
+                    >
+                      <path d="M5 12h14M13 6l6 6-6 6" />
+                    </svg>
+                  </>
+                )}
+              </button>
 
-            {mensaje && (
-              <div
-                role="status"
-                className="rounded-xl border border-green-200 bg-green-50 px-4 py-3 text-sm leading-6 text-green-700"
-              >
-                {mensaje}
-              </div>
-            )}
+              <p className="text-center text-xs text-[#274150]/50">
+                Los campos marcados con{" "}
+                <span className="text-[#e67e22]">*</span> son obligatorios.
+              </p>
+            </div>
 
-            <button
-              type="submit"
-              disabled={enviando}
-              className="w-full rounded-xl bg-[#e67e22] px-6 py-4 text-base font-bold text-white shadow-md transition hover:bg-[#d96f13] focus:outline-none focus:ring-4 focus:ring-[#e67e22]/30 disabled:cursor-not-allowed disabled:opacity-60"
-            >
-              {enviando ? "Enviando..." : "Enviar información"}
-            </button>
-
-            <div className="pt-2 text-center">
-              <p className="text-base font-semibold leading-7 text-[#005f73]">
+            <div className="flex flex-col items-center gap-5 pt-2 text-center">
+              <span aria-hidden="true" className="h-px w-12 bg-[#e67e22]" />
+              <p className="max-w-md font-display text-xl font-light italic leading-8 text-[#274150] sm:text-2xl sm:leading-9">
                 Este 17 de octubre será de los primeros en conocer un lugar
                 para toda la vida.
               </p>
             </div>
-
-            <p className="text-center text-xs text-gray-500">
-              Los campos marcados con * son obligatorios.
-            </p>
           </form>
         </div>
       </div>
     </main>
+  );
+}
+
+/* ================================================================
+   Componentes de presentación
+   ================================================================ */
+
+function Seccion({
+  numero,
+  titulo,
+  children,
+}: {
+  numero: string;
+  titulo: string;
+  children: ReactNode;
+}) {
+  return (
+    <section aria-labelledby={`seccion-${numero}`}>
+      <h3
+        id={`seccion-${numero}`}
+        className="mb-6 flex items-baseline gap-3 text-xs font-semibold uppercase tracking-[0.22em] text-[#274150]"
+      >
+        <span className="font-display text-sm font-normal tracking-normal text-[#e67e22]">
+          {numero}
+        </span>
+        {titulo}
+      </h3>
+
+      <div className="space-y-8">{children}</div>
+    </section>
+  );
+}
+
+function Obligatorio() {
+  return (
+    <>
+      <span aria-hidden="true" className="ml-0.5 text-[#e67e22]">
+        *
+      </span>
+      <span className="sr-only"> (obligatorio)</span>
+    </>
+  );
+}
+
+type CampoTextoProps = ComponentProps<"input"> & {
+  id: string;
+  etiqueta: string;
+  obligatorio?: boolean;
+};
+
+function CampoTexto({ id, etiqueta, obligatorio, ...props }: CampoTextoProps) {
+  return (
+    <div>
+      <label
+        htmlFor={id}
+        className="mb-2 flex items-baseline justify-between gap-3 text-sm font-medium text-[#274150]"
+      >
+        <span>
+          {etiqueta}
+          {obligatorio && <Obligatorio />}
+        </span>
+        {!obligatorio && (
+          <span className="text-xs font-normal text-[#274150]/45">
+            Opcional
+          </span>
+        )}
+      </label>
+
+      <input
+        id={id}
+        aria-required={obligatorio || undefined}
+        className="h-14 w-full min-w-0 rounded-2xl border border-[#274150]/10 bg-[#F7F6F1] px-4 text-base text-[#1f3340] transition duration-200 placeholder:text-[#274150]/35 hover:border-[#274150]/25 focus:border-[#005f73] focus:bg-white focus:outline-none focus:ring-4 focus:ring-[#005f73]/10"
+        {...props}
+      />
+    </div>
+  );
+}
+
+type GrupoOpcionesProps = {
+  nombre: string;
+  pregunta: string;
+  opciones: readonly string[];
+  valor: string;
+  onCambio: (valor: string) => void;
+  etiquetas?: Record<string, string>;
+  columnas?: string;
+};
+
+function GrupoOpciones({
+  nombre,
+  pregunta,
+  opciones,
+  valor,
+  onCambio,
+  etiquetas,
+  columnas = "sm:grid-cols-2",
+}: GrupoOpcionesProps) {
+  return (
+    <fieldset className="min-w-0">
+      <legend className="mb-4 text-[15px] font-medium leading-6 text-[#274150]">
+        {pregunta}
+        <Obligatorio />
+      </legend>
+
+      <div className={`grid gap-3 ${columnas}`}>
+        {opciones.map((opcion) => (
+          <TarjetaOpcion
+            key={opcion}
+            nombre={nombre}
+            valor={opcion}
+            etiqueta={etiquetas?.[opcion] ?? opcion}
+            seleccionada={valor === opcion}
+            onSeleccionar={onCambio}
+          />
+        ))}
+      </div>
+    </fieldset>
+  );
+}
+
+function TarjetaOpcion({
+  nombre,
+  valor,
+  etiqueta,
+  seleccionada,
+  onSeleccionar,
+}: {
+  nombre: string;
+  valor: string;
+  etiqueta: string;
+  seleccionada: boolean;
+  onSeleccionar: (valor: string) => void;
+}) {
+  return (
+    <label
+      className={`flex min-h-14 cursor-pointer items-center gap-3 rounded-2xl border px-4 py-3.5 transition duration-200 has-[input:focus-visible]:ring-4 has-[input:focus-visible]:ring-[#005f73]/20 ${
+        seleccionada
+          ? "border-[#005f73] bg-[#005f73]/[0.06] shadow-[inset_0_0_0_1px_#005f73]"
+          : "border-[#274150]/10 bg-[#F7F6F1] hover:-translate-y-px hover:border-[#274150]/25 hover:bg-white hover:shadow-sm"
+      }`}
+    >
+      <input
+        type="radio"
+        name={nombre}
+        value={valor}
+        checked={seleccionada}
+        onChange={(event) => onSeleccionar(event.target.value)}
+        className="sr-only"
+      />
+
+      <span
+        aria-hidden="true"
+        className={`flex h-5 w-5 shrink-0 items-center justify-center rounded-full border-2 transition-colors duration-200 ${
+          seleccionada
+            ? "border-[#005f73] bg-[#005f73] text-white"
+            : "border-[#274150]/25 bg-white text-transparent"
+        }`}
+      >
+        <IconoCheck className="h-3 w-3" />
+      </span>
+
+      <span
+        className={`min-w-0 text-[15px] leading-6 ${
+          seleccionada ? "font-medium text-[#00485a]" : "text-[#274150]/85"
+        }`}
+      >
+        {etiqueta}
+      </span>
+    </label>
+  );
+}
+
+function IconoCheck({ className }: { className?: string }) {
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="3.5"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden="true"
+      className={className}
+    >
+      <path d="M5 12.5l4.5 4.5L19 7.5" />
+    </svg>
+  );
+}
+
+function IconoAlerta({ className }: { className?: string }) {
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden="true"
+      className={className}
+    >
+      <circle cx="12" cy="12" r="9" />
+      <path d="M12 7.5v5M12 16h.01" />
+    </svg>
+  );
+}
+
+/* Curvas de nivel y sol: una composición gráfica abstracta de tierra y
+   horizonte, sin representar el proyecto. */
+function Paisaje({ className }: { className?: string }) {
+  return (
+    <svg
+      viewBox="0 0 400 260"
+      fill="none"
+      aria-hidden="true"
+      className={className}
+    >
+      <circle
+        cx="292"
+        cy="78"
+        r="34"
+        stroke="#e67e22"
+        strokeWidth="1.5"
+      />
+      <path d="M0 150 H400" stroke="currentColor" strokeOpacity="0.35" />
+      {Array.from({ length: 6 }, (_, i) => (
+        <path
+          key={i}
+          d={`M0 ${170 + i * 16} C 70 ${156 + i * 14}, 130 ${
+            190 + i * 15
+          }, 210 ${174 + i * 16} S 350 ${150 + i * 18}, 400 ${168 + i * 16}`}
+          stroke="currentColor"
+          strokeOpacity={0.3 - i * 0.04}
+        />
+      ))}
+    </svg>
+  );
+}
+
+function FondoDecorativo() {
+  return (
+    <div
+      aria-hidden="true"
+      className="pointer-events-none absolute inset-0 -z-10 overflow-hidden"
+    >
+      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_left,#005f73_0%,transparent_55%)] opacity-60" />
+      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_bottom_right,#1b2e39_0%,transparent_60%)]" />
+      <svg
+        viewBox="0 0 800 800"
+        fill="none"
+        preserveAspectRatio="xMidYMid slice"
+        className="absolute -right-40 top-0 h-[900px] w-[900px] text-white opacity-[0.06]"
+      >
+        {Array.from({ length: 9 }, (_, i) => (
+          <ellipse
+            key={i}
+            cx="400"
+            cy="400"
+            rx={120 + i * 38}
+            ry={80 + i * 30}
+            transform={`rotate(${-18 + i * 3} 400 400)`}
+            stroke="currentColor"
+            strokeWidth="1.2"
+          />
+        ))}
+      </svg>
+    </div>
   );
 }
