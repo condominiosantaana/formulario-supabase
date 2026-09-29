@@ -1,6 +1,12 @@
 "use client";
 
-import { ComponentProps, FormEvent, ReactNode, useState } from "react";
+import {
+  ComponentProps,
+  FormEvent,
+  ReactNode,
+  useEffect,
+  useState,
+} from "react";
 import { supabase } from "@/lib/supabase";
 
 const CAMBIO_VIVIENDA = [
@@ -36,6 +42,13 @@ const RANGO_EDAD = [
 const ETIQUETAS_EDAD: Record<string, string> = {
   "66 o mas": "66 o más",
 };
+
+const IMAGENES = [
+  "https://res.cloudinary.com/dv1gz4eqo/image/upload/v1790702743/WhatsApp_Image_2026-09-29_at_11.15.28_AM_1_s0rquj.jpg",
+  "https://res.cloudinary.com/dv1gz4eqo/image/upload/v1790702743/WhatsApp_Image_2026-09-29_at_11.15.28_AM_cwzegz.jpg",
+];
+
+const INTERVALO_IMAGENES_MS = 5000;
 
 export default function Home() {
   const [nombre, setNombre] = useState("");
@@ -164,7 +177,7 @@ export default function Home() {
 
       <div className="mx-auto grid w-full max-w-6xl gap-10 px-4 py-10 sm:px-6 sm:py-14 lg:grid-cols-[minmax(0,5fr)_minmax(0,7fr)] lg:gap-16 lg:px-8 lg:py-20">
         {/* ---------------- Zona editorial ---------------- */}
-        <header className="animate-rise text-white lg:sticky lg:top-20 lg:self-start">
+        <header className="animate-rise text-white lg:self-start lg:[@media(min-height:900px)]:sticky lg:[@media(min-height:900px)]:top-20">
           <p className="flex items-center gap-3 text-xs font-semibold uppercase tracking-[0.28em] text-white/70">
             <span aria-hidden="true" className="h-px w-8 bg-[#e67e22]" />
             Queremos conocerte
@@ -185,7 +198,7 @@ export default function Home() {
             familia.
           </p>
 
-          <Paisaje className="mt-12 hidden w-full max-w-sm text-white lg:block" />
+          <Presentacion className="mt-10 w-full max-w-sm sm:max-w-xs lg:max-w-[280px]" />
         </header>
 
         {/* ---------------- Tarjeta del formulario ---------------- */}
@@ -639,35 +652,61 @@ function IconoAlerta({ className }: { className?: string }) {
   );
 }
 
-/* Curvas de nivel y sol: una composición gráfica abstracta de tierra y
-   horizonte, sin representar el proyecto. */
-function Paisaje({ className }: { className?: string }) {
+/* Presentación de imágenes con fundido cruzado. Vive en su propio
+   componente para que el cambio de imagen no vuelva a renderizar el
+   formulario. */
+function Presentacion({ className }: { className?: string }) {
+  const [indiceImagen, setIndiceImagen] = useState(0);
+
+  useEffect(() => {
+    const intervalo = setInterval(() => {
+      setIndiceImagen((actual) => (actual + 1) % IMAGENES.length);
+    }, INTERVALO_IMAGENES_MS);
+
+    return () => clearInterval(intervalo);
+  }, []);
+
   return (
-    <svg
-      viewBox="0 0 400 260"
-      fill="none"
-      aria-hidden="true"
-      className={className}
-    >
-      <circle
-        cx="292"
-        cy="78"
-        r="34"
-        stroke="#e67e22"
-        strokeWidth="1.5"
-      />
-      <path d="M0 150 H400" stroke="currentColor" strokeOpacity="0.35" />
-      {Array.from({ length: 6 }, (_, i) => (
-        <path
-          key={i}
-          d={`M0 ${170 + i * 16} C 70 ${156 + i * 14}, 130 ${
-            190 + i * 15
-          }, 210 ${174 + i * 16} S 350 ${150 + i * 18}, 400 ${168 + i * 16}`}
-          stroke="currentColor"
-          strokeOpacity={0.3 - i * 0.04}
+    <figure className={className}>
+      <div className="relative aspect-[4/5] overflow-hidden rounded-[24px] bg-[#1f3340] shadow-xl shadow-black/20 ring-1 ring-white/10">
+        {IMAGENES.map((src, indice) => {
+          const activa = indice === indiceImagen;
+
+          return (
+            // Se usa <img> para no configurar dominios externos en next.config.
+            // eslint-disable-next-line @next/next/no-img-element
+            <img
+              key={src}
+              src={src}
+              alt="Km 2 Vía Sirivana"
+              aria-hidden={!activa}
+              decoding="async"
+              className={`absolute inset-0 h-full w-full object-cover transition-opacity duration-[900ms] ease-in-out ${
+                activa ? "opacity-100" : "opacity-0"
+              }`}
+            />
+          );
+        })}
+
+        <div
+          aria-hidden="true"
+          className="pointer-events-none absolute inset-0 bg-gradient-to-t from-[#274150]/35 via-transparent to-transparent"
         />
-      ))}
-    </svg>
+      </div>
+
+      <div aria-hidden="true" className="mt-4 flex items-center gap-2">
+        {IMAGENES.map((src, indice) => (
+          <span
+            key={src}
+            className={`h-1.5 rounded-full transition-all duration-700 ${
+              indice === indiceImagen
+                ? "w-6 bg-[#e67e22]"
+                : "w-1.5 bg-white/35"
+            }`}
+          />
+        ))}
+      </div>
+    </figure>
   );
 }
 
