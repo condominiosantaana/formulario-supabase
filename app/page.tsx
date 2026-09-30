@@ -193,9 +193,11 @@ export default function Home() {
           </h1>
 
           <p className="mt-8 max-w-md text-base leading-7 text-white/75 sm:text-lg sm:leading-8">
-            Un lugar para toda la vida empieza por saber qué buscas.
-            Cuéntanos un poco sobre ti y sobre lo que imaginas para tu
-            familia.
+            <span className="font-medium text-[#e67e22]">
+              ¡Este 17 de octubre
+            </span>{" "}
+            podrás ser de los primeros en conocer un lugar para toda la vida.
+            Cuéntanos un poco más de ti y lo que imaginas para tu familia!
           </p>
 
           <Presentacion className="mt-10 w-full max-w-sm sm:max-w-xs lg:max-w-[280px]" />
@@ -431,14 +433,6 @@ export default function Home() {
               <p className="text-center text-xs text-[#274150]/50">
                 Los campos marcados con{" "}
                 <span className="text-[#e67e22]">*</span> son obligatorios.
-              </p>
-            </div>
-
-            <div className="flex flex-col items-center gap-5 pt-2 text-center">
-              <span aria-hidden="true" className="h-px w-12 bg-[#e67e22]" />
-              <p className="max-w-md font-display text-xl font-light italic leading-8 text-[#274150] sm:text-2xl sm:leading-9">
-                Este 17 de octubre será de los primeros en conocer un lugar
-                para toda la vida.
               </p>
             </div>
           </form>
